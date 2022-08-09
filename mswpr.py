@@ -17,8 +17,12 @@ def start():
 def table_layer1():
     """Creates a 2D table. This will be the top layer of the game.
 
-    'E' means Examine here. Cells with value 'E' are the undiscovered cells,
-    and the player can select these cells only.
+    Possible values:
+
+    E - Examine | Available to discover cells with this value\n
+    0 - 0 mines around that cell\n
+    1-8 - The cell has 1 to 8 neighbors with a mine on it\n
+    M - A position with a mine\n
     """
 
     row = ["E" for elem in range(9)]
@@ -32,7 +36,11 @@ def table_layer2():
     This will be a layer that is hidden from the player.
     Mines and values will be placed here.
 
-    0 means that no nearby mine in that position.
+    Possible values:
+
+    0 - 0 mines around that cell\n
+    1-8 - The cell has 1 to 8 neighbors with a mine on it\n
+    M - A position with a mine\n
     """
 
     row = [0 for elem in range(9)]
@@ -42,7 +50,7 @@ def table_layer2():
 
 def console_table(t):
     """
-    This is basically a function that is used to print the current state of the game.
+    This is basically a function to print the current state of the game.
     """
 
     print( f'''    1  2  3  4  5  6  7  8  9\n\n\
@@ -76,13 +84,18 @@ def generate_mine_positions(p_first_step):
     return mine_positions
 
 
-def set_mines(layer2, mines):
+def set_mines(t, mines):
     """
-    This will update the layer2 with the unique mine positions.
+    This has two functionality.\n
+    First, to update layer2 with the mine positions to be able
+    to render the full table with mines and numbers.
+
+    The second use is to show the mines to the player
+    if stepped on one of the mines.
     """
 
     for mine in mines:
-        layer2[mine[0]][mine[1]] = "M"
+        t[mine[0]][mine[1]] = "M"
 
 
 def set_values(t, mines):
@@ -146,9 +159,9 @@ def choose_position():
 
 def find_zeros(row, col, layer1, layer2):
     """
-    A recursive function that finds every clear nodes around the player's selected position.
+    Finds every clear nodes around the player's selected position.
 
-    Only used when the player stepped on a cell with value 0.
+    Only applied when the player stepped on a cell with value 0.
     """
 
     if row < 0 or col < 0 or row == 9 or col == 9: return
@@ -253,6 +266,8 @@ while new_game:
         if win: 
             print("Congratulations! You won!")
         if game_over: 
+            set_mines(covering_layer, mine_positions)
+            console_table(covering_layer)
             print("Game Over! Try again next time.")
 
     new_game = start()

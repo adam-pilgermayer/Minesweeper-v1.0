@@ -1,5 +1,16 @@
 from random import randint
 
+around_pos = [
+    [-1, -1],
+    [-1, 0],
+    [-1, 1],
+    [0, -1],
+    [0, 1],
+    [1, -1],
+    [1, 0],
+    [1, 1],
+] # This is used to check surrounding cells
+
 
 def start():
     options = ["S", "E"]
@@ -50,7 +61,7 @@ def table_layer2():
 
 def console_table(t):
     """
-    This is basically a function to print the current state of the game.
+    Prints the current state of the game.
     """
 
     print( f'''    1  2  3  4  5  6  7  8  9\n\n\
@@ -63,7 +74,6 @@ f   {t[5][0]}  {t[5][1]}  {t[5][2]}  {t[5][3]}  {t[5][4]}  {t[5][5]}  {t[5][6]} 
 g   {t[6][0]}  {t[6][1]}  {t[6][2]}  {t[6][3]}  {t[6][4]}  {t[6][5]}  {t[6][6]}  {t[6][7]}  {t[6][8]}\n\
 h   {t[7][0]}  {t[7][1]}  {t[7][2]}  {t[7][3]}  {t[7][4]}  {t[7][5]}  {t[7][6]}  {t[7][7]}  {t[7][8]}\n\
 i   {t[8][0]}  {t[8][1]}  {t[8][2]}  {t[8][3]}  {t[8][4]}  {t[8][5]}  {t[8][6]}  {t[8][7]}  {t[8][8]}\n\n''')
-
 
 def generate_mine_positions(p_first_step):
     """
@@ -97,7 +107,6 @@ def set_mines(t, mines):
     for mine in mines:
         t[mine[0]][mine[1]] = "M"
 
-
 def set_values(t, mines):
     """
     Based on mine positions this will update layer2 cells with values between 1-8,
@@ -107,22 +116,10 @@ def set_values(t, mines):
     Example: A cell with value 3 means there are 3 mines around that cell.
     """
 
-    around_mine = {
-        'top_left': [-1, -1],
-        'top_center': [-1, 0],
-        'top_right': [-1, 1],
-        'center_left': [0, -1],
-        'center_right': [0, 1],
-        'bottom_left': [1, -1],
-        'bottom_center': [1, 0],
-        'bottom_right': [1, 1],
-    }
-
-
     for mine in mines:
-        for pos in around_mine.values():
-            row = mine[0] + pos[0]
-            col = mine[1] + pos[1]
+        for elem in around_pos:
+            row = mine[0] + elem[0]
+            col = mine[1] + elem[1]
             if col in range(9) and row in range(9):
                 if isinstance(t[row][col], int):
                     t[row][col] += 1
@@ -159,7 +156,7 @@ def choose_position():
 
 def find_zeros(row, col, layer1, layer2):
     """
-    Finds every clear nodes around the player's selected position.
+    Finds every clear node around the player's selected position.
 
     Only applied when the player stepped on a cell with value 0.
     """
@@ -168,14 +165,9 @@ def find_zeros(row, col, layer1, layer2):
     if layer1[row][col] in range(9): return
     if layer2[row][col] == 0:
         layer1[row][col] = 0
-        find_zeros(row-1, col, layer1, layer2)
-        find_zeros(row+1, col, layer1, layer2)
-        find_zeros(row, col-1, layer1, layer2)
-        find_zeros(row, col+1, layer1, layer2)
-        find_zeros(row-1, col-1, layer1, layer2)
-        find_zeros(row+1, col+1, layer1, layer2)
-        find_zeros(row+1, col-1, layer1, layer2)
-        find_zeros(row-1, col+1, layer1, layer2)
+        for r in around_pos:
+            for c in around_pos:
+                find_zeros(row+r[0], col+c[1], layer1, layer2)
     if layer2[row][col] > 0:
         layer1[row][col] = layer2[row][col]
 
@@ -213,10 +205,8 @@ def is_it_over(pos, layer2):
     """
     Checks if the player stepped on a mine or not.
     """
-    if layer2[pos[0]][pos[1]] == 'M':
-        return True
-    else: 
-        return False
+    return layer2[pos[0]][pos[1]] == 'M'
+
 
 # Game loop starts from here.
 
